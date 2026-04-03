@@ -16,6 +16,8 @@ FROM node:24-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
+COPY package.json package-lock.json ./
+COPY packages/contracts ./packages/contracts
 COPY --from=deps /app/node_modules ./node_modules
 COPY apps/api ./apps/api
 
