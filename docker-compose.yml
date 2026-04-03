@@ -1,0 +1,27 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      PORT: 3200
+      FRONTEND_ORIGIN: http://localhost:8080
+      DB_PATH: /data/app.db
+    ports:
+      - "3200:3200"
+    volumes:
+      - api_data:/data
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3200
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  api_data:

@@ -1,0 +1,580 @@
+openapi: 3.0.3
+info:
+  title: Project Heartstar API
+  version: 0.3.0
+  description: |
+    Pixel adventure API contract.
+    Auth uses username + 4-digit PIN and bearer token sessions.
+servers:
+  - url: https://api.example.com
+tags:
+  - name: Auth
+  - name: Game
+paths:
+  /v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new account
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthInput"
+      responses:
+        "201":
+          description: Registered and logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccess"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: Username already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with username and 4-digit PIN
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccess"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout and invalidate current session
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Logged out
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/game/state:
+    get:
+      tags: [Game]
+      summary: Get current permanent game state with progress
+      operationId: getGameState
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current game state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameState"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/game/stage/start:
+    post:
+      tags: [Game]
+      summary: Start a stage run
+      operationId: stageStart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StageStartInput"
+      responses:
+        "200":
+          description: Stage run started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StageStartResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/game/stage/submit:
+    post:
+      tags: [Game]
+      summary: Submit stage result and update cumulative progress
+      operationId: stageSubmit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StageSubmitInput"
+      responses:
+        "200":
+          description: Stage result settled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StageSubmitResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Run missing or validation mismatch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/game/leaderboard:
+    get:
+      tags: [Game]
+      summary: Get cumulative leaderboard by metric
+      operationId: getLeaderboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: metric
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [hearts, stars, combo]
+            default: hearts
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        "200":
+          description: Leaderboard entries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaderboardResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/game/run/state:
+    get:
+      tags: [Game]
+      deprecated: true
+      summary: Get active run session state (legacy)
+      operationId: getRunState
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current run state (or null if no active run)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunStateResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/game/run/start:
+    post:
+      tags: [Game]
+      deprecated: true
+      summary: Start a new endless run (legacy)
+      operationId: runStart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Run started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunStartResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/game/run/submit:
+    post:
+      tags: [Game]
+      deprecated: true
+      summary: Submit one run result at game-over (legacy)
+      operationId: runSubmit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunSubmitInput"
+      responses:
+        "200":
+          description: Run validated and settled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunSubmitResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Validation failed or run missing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/game/run/end:
+    post:
+      tags: [Game]
+      deprecated: true
+      summary: Abort active run without reward (legacy)
+      operationId: runEnd
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Run aborted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunEndResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Run not started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/game/spin:
+    post:
+      tags: [Game]
+      summary: Legacy spin endpoint (fixed probability, no upgrade)
+      operationId: spin
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Spin result and updated state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpinResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: SessionToken
+  responses:
+    BadRequest:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Missing or invalid auth token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    AuthInput:
+      type: object
+      required: [username, pin]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 24
+          pattern: "^[A-Za-z0-9_]+$"
+        pin:
+          type: string
+          description: Exactly 4 digits
+          pattern: "^\\d{4}$"
+    User:
+      type: object
+      required: [id, username]
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+    PlayerProgress:
+      type: object
+      required: [totalHearts, totalStarsLit, bestCombo, updatedAt]
+      properties:
+        totalHearts:
+          type: integer
+          minimum: 0
+        totalStarsLit:
+          type: integer
+          minimum: 0
+        bestCombo:
+          type: integer
+          minimum: 0
+        updatedAt:
+          type: string
+    GameState:
+      type: object
+      required: [coin, progress]
+      properties:
+        coin:
+          type: integer
+          minimum: 0
+        progress:
+          $ref: "#/components/schemas/PlayerProgress"
+    AuthSuccess:
+      type: object
+      required: [accessToken, user, state]
+      properties:
+        accessToken:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        state:
+          $ref: "#/components/schemas/GameState"
+    SpinResponse:
+      type: object
+      required: [tier, rewardCoin, spinCost, state]
+      properties:
+        tier:
+          type: string
+          enum: [MISS, COMMON, RARE, EPIC]
+        rewardCoin:
+          type: integer
+          minimum: 0
+        spinCost:
+          type: integer
+          minimum: 1
+        state:
+          $ref: "#/components/schemas/GameState"
+    StageStartInput:
+      type: object
+      required: [stageId]
+      properties:
+        stageId:
+          type: string
+          example: meadow_1
+    StageStartResponse:
+      type: object
+      required: [runId, stageId, startedAt, initialHearts]
+      properties:
+        runId:
+          type: string
+          format: uuid
+        stageId:
+          type: string
+        startedAt:
+          type: integer
+        initialHearts:
+          type: integer
+          minimum: 1
+    StageSubmitInput:
+      type: object
+      required: [runId, stageId, heartsCollected, starsLit, maxCombo, cleared, durationMs]
+      properties:
+        runId:
+          type: string
+        stageId:
+          type: string
+        heartsCollected:
+          type: integer
+          minimum: 0
+        starsLit:
+          type: integer
+          minimum: 0
+        maxCombo:
+          type: integer
+          minimum: 0
+        cleared:
+          type: boolean
+        durationMs:
+          type: integer
+          minimum: 0
+    StageResult:
+      type: object
+      required: [runId, stageId, heartsCollected, starsLit, maxCombo, cleared, durationMs, submittedAt]
+      properties:
+        runId:
+          type: string
+        stageId:
+          type: string
+        heartsCollected:
+          type: integer
+          minimum: 0
+        starsLit:
+          type: integer
+          minimum: 0
+        maxCombo:
+          type: integer
+          minimum: 0
+        cleared:
+          type: boolean
+        durationMs:
+          type: integer
+          minimum: 0
+        submittedAt:
+          type: integer
+          minimum: 0
+    StageSubmitResponse:
+      type: object
+      required: [progress, stageResult]
+      properties:
+        progress:
+          $ref: "#/components/schemas/PlayerProgress"
+        stageResult:
+          $ref: "#/components/schemas/StageResult"
+    LeaderboardEntry:
+      type: object
+      required: [rank, username, value]
+      properties:
+        rank:
+          type: integer
+          minimum: 1
+        username:
+          type: string
+        value:
+          type: integer
+          minimum: 0
+    LeaderboardResponse:
+      type: object
+      required: [metric, limit, entries]
+      properties:
+        metric:
+          type: string
+          enum: [hearts, stars, combo]
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaderboardEntry"
+    RunEndReason:
+      type: string
+      enum: [MANUAL, HEARTS, TIMEOUT]
+    RunSession:
+      type: object
+      required: [startedAt, initialHearts]
+      properties:
+        startedAt:
+          type: integer
+          minimum: 0
+        initialHearts:
+          type: integer
+          minimum: 1
+    RunSummary:
+      type: object
+      required: [endedBy, settledCoin, survivalMs, dodges, hits, validatedMaxCoin]
+      properties:
+        endedBy:
+          $ref: "#/components/schemas/RunEndReason"
+        settledCoin:
+          type: integer
+          minimum: 0
+        survivalMs:
+          type: integer
+          minimum: 0
+        dodges:
+          type: integer
+          minimum: 0
+        hits:
+          type: integer
+          minimum: 0
+        validatedMaxCoin:
+          type: integer
+          minimum: 0
+    RunStateResponse:
+      type: object
+      required: [state, run]
+      properties:
+        state:
+          $ref: "#/components/schemas/GameState"
+        run:
+          allOf:
+            - $ref: "#/components/schemas/RunSession"
+          nullable: true
+    RunStartResponse:
+      type: object
+      required: [state, run, resumed, replacedPrevious]
+      properties:
+        state:
+          $ref: "#/components/schemas/GameState"
+        run:
+          $ref: "#/components/schemas/RunSession"
+        resumed:
+          type: boolean
+        replacedPrevious:
+          type: boolean
+    RunSubmitInput:
+      type: object
+      required: [survivalMs, dodges, hits, coinEarned, endedBy]
+      properties:
+        survivalMs:
+          type: integer
+          minimum: 0
+        dodges:
+          type: integer
+          minimum: 0
+        hits:
+          type: integer
+          minimum: 0
+        coinEarned:
+          type: integer
+          minimum: 0
+        endedBy:
+          type: string
+          enum: [HEARTS]
+    RunSubmitResponse:
+      type: object
+      required: [state, end]
+      properties:
+        state:
+          $ref: "#/components/schemas/GameState"
+        end:
+          $ref: "#/components/schemas/RunSummary"
+    RunEndResponse:
+      type: object
+      required: [state, end]
+      properties:
+        state:
+          $ref: "#/components/schemas/GameState"
+        end:
+          $ref: "#/components/schemas/RunSummary"
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: INVALID_INPUT
+        message:
+          type: string
+          example: Invalid username format.

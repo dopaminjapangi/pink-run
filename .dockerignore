@@ -1,0 +1,7 @@
+.git
+.agents
+node_modules
+apps/*/node_modules
+apps/web/dist
+npm-debug.log
+.DS_Store
