@@ -1,19 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
 export default defineConfig({
     plugins: [react()],
-    build: {
-        rollupOptions: {
-            output: {
-                manualChunks(id) {
-                    if (id.includes("node_modules/phaser")) {
-                        return "phaser";
-                    }
-                    if (id.includes("node_modules")) {
-                        return "vendor";
-                    }
-                },
-            },
+    resolve: {
+        alias: {
+            "@pink-run/contracts": path.resolve(__dirname, "../../packages/contracts/src/index.ts"),
         },
     },
     server: {

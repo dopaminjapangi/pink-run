@@ -1,6 +1,6 @@
 # Pink Run Monorepo
 
-Simple vending-loop game in monorepo form.
+Simple run-loop game in monorepo form.
 
 ## Structure
 

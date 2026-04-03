@@ -1,6 +1,6 @@
 # Pink Run API
 
-Minimal backend for a vending-loop game.
+Minimal backend for a run-loop game.
 
 ## Why this shape
 
