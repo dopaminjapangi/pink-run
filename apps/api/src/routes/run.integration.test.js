@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "dopamine-api-run-test-"));
+const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "pink-run-api-run-test-"));
 process.env.DB_PATH = path.join(tempRoot, "app.db");
 
 const { createApp } = await import("../app.js");

@@ -6,7 +6,7 @@ import type {
   PlayerProgress,
   StageStartResponse,
   StageSubmitInput,
-} from "@dopamine/contracts";
+} from "@pink-run/contracts";
 import {
   getLeaderboard,
   getState,
@@ -24,8 +24,8 @@ const PhaserRunCanvas = lazy(() =>
   })),
 );
 
-const TOKEN_STORAGE_KEY = "dopamine.accessToken";
-const USERNAME_STORAGE_KEY = "dopamine.username";
+const TOKEN_STORAGE_KEY = "pink-run.accessToken";
+const USERNAME_STORAGE_KEY = "pink-run.username";
 const PIN_REGEX = /^\d{4}$/;
 const USERNAME_REGEX = /^[A-Za-z0-9_]{3,24}$/;
 
@@ -286,7 +286,7 @@ export default function App() {
               <input
                 value={usernameInput}
                 onChange={(event) => setUsernameInput(event.target.value)}
-                placeholder="영문/숫자/_ 3~24"
+                placeholder="영문 또는 숫자로 3~24자 사이로 지어주세요"
               />
             </label>
             <label className="field">
@@ -343,7 +343,11 @@ export default function App() {
 
             <div className="lobby-layout">
               <figure className="hero-card" aria-hidden="true">
-                <img className="hero-card__image" src="/front-char.png" alt="" />
+                <img
+                  className="hero-card__image"
+                  src="/front-char.png"
+                  alt=""
+                />
               </figure>
 
               <section className="lobby-content">
@@ -459,7 +463,9 @@ export default function App() {
                     <button
                       type="button"
                       className={
-                        leaderboard.metric === "stars" ? "tab tab--active" : "tab"
+                        leaderboard.metric === "stars"
+                          ? "tab tab--active"
+                          : "tab"
                       }
                       disabled={busy}
                       onClick={() => handleChangeMetric("stars")}
@@ -469,7 +475,9 @@ export default function App() {
                     <button
                       type="button"
                       className={
-                        leaderboard.metric === "combo" ? "tab tab--active" : "tab"
+                        leaderboard.metric === "combo"
+                          ? "tab tab--active"
+                          : "tab"
                       }
                       disabled={busy}
                       onClick={() => handleChangeMetric("combo")}

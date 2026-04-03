@@ -1,4 +1,4 @@
-# Dopamine Monorepo
+# Pink Run Monorepo
 
 Simple vending-loop game in monorepo form.
 
@@ -36,4 +36,4 @@ docker compose up --build
 ## Why monorepo
 
 - API and UI version together, so contract drift is easier to control.
-- Shared `@dopamine/contracts` types reduce integration mistakes.
+- Shared `@pink-run/contracts` types reduce integration mistakes.

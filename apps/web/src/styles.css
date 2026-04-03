@@ -96,7 +96,7 @@ body {
 
 .title {
   margin: 8px 0 0;
-  font-family: "Press Start 2P", cursive;
+  font-family: "Press Start 2P", sans-serif;
   font-size: clamp(0.95rem, 2.8vw, 1.2rem);
   line-height: 1.5;
   color: #513f8f;

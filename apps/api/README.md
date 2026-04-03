@@ -1,4 +1,4 @@
-# Dopamine API
+# Pink Run API
 
 Minimal backend for a vending-loop game.
 

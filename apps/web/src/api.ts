@@ -9,7 +9,7 @@ import type {
   StageStartResponse,
   StageSubmitInput,
   StageSubmitResponse,
-} from "@dopamine/contracts";
+} from "@pink-run/contracts";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3200";
 
