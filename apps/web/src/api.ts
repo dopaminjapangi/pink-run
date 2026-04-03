@@ -11,7 +11,7 @@ import type {
   StageSubmitResponse,
 } from "@pink-run/contracts";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3200";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, options);

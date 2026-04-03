@@ -29,7 +29,7 @@ docker compose up --build
 
 `docker-compose.yml` defaults:
 
-- `VITE_API_BASE_URL=http://localhost:3200`
+- `VITE_API_BASE_URL=http://localhost:8080`
 - `FRONTEND_ORIGIN=http://localhost:8080`
 - `DB_PATH=/data/app.db` (persisted by Docker volume `api_data`)
 
